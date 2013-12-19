@@ -20,6 +20,7 @@ function User(x,y,speed,hitPower,hitPoints){
 	this.speed = speed;
 	//set health
 	this.health = hitPoints;
+	this.maxHealth = hitPoints;
 	//creating image for the user
 	this.img = new Image();
 	this.img.src = "images/user.png";
@@ -93,6 +94,8 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 
 	//set health
 	this.health = hitPoints;
+
+	this.maxHealth = hitPoints;
 	this.speed = speed;
 	this.userImg = new Image();
 	this.userImg.src = "images/ie6.png";
@@ -110,7 +113,7 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 
    this.isShotFired = false;
 	this.shoot = function(){
-   		this.shot= new Shot(this.x,this.y,this.speed*2.2);
+   		this.shot= new Shot(this.x,this.y,this.speed*1.2)
    		this.canIshoot  = false;
    		this.isShotFired =  true;
    }
@@ -134,6 +137,7 @@ var user1 = new User(0,ctx.canvas.height - userHeight,5,10,100);
 //var shot = new Shot(0,ctx.canvas.height - userHeight,5,false);
 //create ie
 var ie  = new InternetExporer(ctx.canvas.width -3*ieWidth,ctx.canvas.height - ieHeight,5,10,100)
+var ieMaxHealth = ie.health
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -169,9 +173,8 @@ function animationFrame(){
 		
 		
 		}
-		if(ie.canIshoot && ie.health<10000&&ie.health>0&&user1.health>0){
-			ie.shoot()
-		}
+
+		
 		if(ie.y<canvas.height - 70)
 			{
 				ie.y++;
@@ -190,17 +193,57 @@ function animationFrame(){
 		if(ie.y>=canvas.height - 70 && ie.health>10000000){
 			ie.speed =   5;
 			ie.health = getRandomInt(25,250);
+			ieMaxHealth = ie.health
 			
 
 		}
-		if (38 in keysDown&& user1.canIJump) { // Player holding up
+		if( ie.health<10000&&ie.health>0){
+			if(ie.canIshoot&&user1.health>0){
+			ie.shoot()
+			}
+			//ie health bar
+			ctx.fillStyle = "black";
+			ctx.strokeRect(ie.x+3,ie.y  - 25,ieWidth-6,12);
+			var percIe = ie.health / ieMaxHealth
+			if( percIe > 2/3){
+				
+				ctx.fillStyle= "green"
+			}
+			else if(percIe<=2/3&& percIe>1/3){
+				ctx.fillStyle= "orange"
+			}
+			else{
+				ctx.fillStyle= "red"
+			}
+			ctx.fillRect(ie.x+4,ie.y  - 24,(ieWidth-8)*percIe,10);
+		}
+
+		//user health bar
+			if(user1.health>0){
+			ctx.fillStyle = "black";
+			ctx.strokeRect(user1.x+3,user1.y  - 25,userWidth-6,12);
+			var percUser = user1.health / user1.maxHealth
+			if( percUser > 2/3){
+				
+				ctx.fillStyle= "green"
+			}
+			else if(percUser<=2/3&& percUser>1/3){
+				ctx.fillStyle= "orange"
+			}
+			else{
+				ctx.fillStyle= "red"
+			}
+			ctx.fillRect(user1.x+4,user1.y  - 24,(userWidth-8)*percUser,10);
+		}
+
+		//Player hoding Up  -- Jump
+		if (38 in keysDown&& user1.canIJump&&user1.health>0) { 
 			user1.amIGoingUp = true;
 			if(user1.y < canvas.height - userHeight){
 				user1.canIJump = false; 
 			}
-
 		}
-
+		
 		if(user1.amIGoingUp){
 			user1.y-=user1.speed;
 		}
@@ -214,10 +257,11 @@ function animationFrame(){
 		}
 		if(user1.y <baseLine - 120){
 			user1.amIGoingUp = false;
-
 		}
-		
-		if (37 in keysDown && user1.x>0&&user1.health>0) { // Player holding left
+
+
+		//Player holding left
+		if (37 in keysDown && user1.x>0&&user1.health>0) { 
 				
 				if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
 					user1.moveLeft();
@@ -229,8 +273,8 @@ function animationFrame(){
 					}
 				}	
 		}
-
-		if (39 in keysDown&& user1.x < canvas.width - userWidth&&user1.health>0) { // Player holding right
+		//player holding right
+		if (39 in keysDown&& user1.x < canvas.width - userWidth&&user1.health>0) { 
 			if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
 					user1.moveRight();
 				}
@@ -241,6 +285,8 @@ function animationFrame(){
 					}
 				}	
 		}
+
+		//player pressing space -- fire
 		if (32 in keysDown&&user1.health>0) { 
 				if(user1.canIshoot){
 						user1.shoot();
@@ -272,6 +318,9 @@ function animationFrame(){
 					user1.shot.y = user1.y+50;
 			}
 		}
+
+
+		//ie firing
 		if(ie.isShotFired){	
 			if(ie.shot.x > user1.x+ userWidth || ie.shot.x < user1.x - userWidth )			{	
 				ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
