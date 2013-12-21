@@ -61,7 +61,7 @@ function User(x,y,speed,hitPower,hitPoints){
 			_this.canIJump = true;
 		},1000);
    }
-   
+   this.shootTipe = 1;
 
 
    
@@ -69,16 +69,21 @@ function User(x,y,speed,hitPower,hitPoints){
 
    this.isShotFired = false;
    
+   		this.shot= new Shot(this.x,this.y,this.speed*2.2,25);
    this.shoot = function(){
-   		this.shot= new Shot(this.x,this.y,this.speed*2.2);
-   		this.canIshoot  = false;
+
+		this.shot.x=this.x
+   			this.shot.y=this.y
+   		   		this.canIshoot  = false;
    		this.isShotFired =  true;
+   		
    }
 
 
 }
-function Shot(x,y,speed) {
+function Shot(x,y,speed,firepower) {
 		this.x = x
+		this.firepower = firepower;
 		this.y = y
 		this.speed = speed;
 		this.img = new Image();
@@ -119,10 +124,12 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 
    this.canIshoot = true;
 
+   this.shot= new Shot(this.x,this.y,this.speed*1.2,getRandomInt(3,7))
    this.isShotFired = false;
 	this.shoot = function(){
-   		this.shot= new Shot(this.x,this.y,this.speed*1.2)
-   		this.shot.img.src ="images/ctrlaltdel.png";
+		this.shot.x=this.x
+   			this.shot.y=this.y
+   		
    		this.canIshoot  = false;
    		this.isShotFired =  true;
    }
@@ -324,7 +331,7 @@ function animationFrame(){
 					user1.shot.moveRight();
 				}
 				else{
-					ie.health -= 25;
+					ie.health -= user1.shot.firepower;
 					user1.canIshoot =true;
 					user1.isShotFired = false;
 					user1.shot.x = user1.x;
@@ -338,7 +345,23 @@ function animationFrame(){
 					user1.shot.y = user1.y+50;
 			}
 		}
-
+		if(49 in keysDown ){
+			user1.shootTipe = 1;
+			user1.shot.speed = 2.2*user1.speed;
+			user1.shot.firepower = 25;
+		}
+		if(50 in keysDown ){
+			user1.shootTipe = 2;
+			user1.shot.speed = 4.5 * user1.speed;
+			user1.shot.firepower = 25;
+		}
+		
+		if(user1.shootTipe === 1&& user1.canIshoot){
+   			user1.shot.img.src =" images/altf4.png";	
+   		}
+   		if(user1.shootTipe === 2&& user1.canIshoot){
+   			user1.shot.img.src ="images/ctrlaltdel.png";
+   		}
 
 		//ie firing
 		if(ie.isShotFired){	
@@ -352,7 +375,7 @@ function animationFrame(){
 					ie.shot.moveLeft();
 				}
 				else{
-					user1.health -= getRandomInt(3,7);
+					user1.health -= ie.shot.firepower;
 					if(user1.health<0)
 						user1.health = 0
 					var useless = getRandomInt(500,1500);
