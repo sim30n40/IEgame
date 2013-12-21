@@ -14,7 +14,11 @@ var ieHeight = 70;
 var kills = 0;
 //create object for the user
 function User(x,y,speed,hitPower,hitPoints){
-	//set object properties for x,y coordinate and speed
+	//set object properties for x,y coordinate and speed\
+	this.maxHeight = 70;
+	this.maxWidth = 70;
+	this.height = 70;
+	this.width = 70;
 	this.x = x;
 	this.y = y;
 	this.speed = speed;
@@ -90,6 +94,10 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
 	this.x = x;
 	this.y = y;
+	this.maxHeight = 70;
+	this.maxWidth = 70;
+	this.height = 70;
+	this.width = 70;
 	this.canIJump = true;
 
 	//set health
@@ -114,12 +122,22 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
    this.isShotFired = false;
 	this.shoot = function(){
    		this.shot= new Shot(this.x,this.y,this.speed*1.2)
+   		this.shot.img.src ="images/ctrlaltdel.png";
    		this.canIshoot  = false;
    		this.isShotFired =  true;
    }
    }
 
+   var amIinYou = function(me,you){
+   		if(me.y+me.height < you.y || me.y>=you.y+you.height){
+   			return false;
+   		}
+   		if(me.x+me.width>=you.x && me.x <= you.width + you.x){
+   			return true;
+   		}
+   		return false;
 
+   }
 
 
 var keysDown = {};
@@ -217,7 +235,7 @@ function animationFrame(){
 			}
 			ctx.fillRect(ie.x+4,ie.y  - 24,(ieWidth-8)*percIe,10);
 		}
-
+		console.log(amIinYou(user1,ie));
 		//user health bar
 			if(user1.health>0){
 			ctx.fillStyle = "black";
@@ -241,7 +259,7 @@ function animationFrame(){
 			user1.amIGoingUp = true;
 			if(user1.y < canvas.height - userHeight){
 				user1.canIJump = false; 
-			}
+			}	
 		}
 		
 		if(user1.amIGoingUp){
@@ -261,8 +279,8 @@ function animationFrame(){
 
 
 		//Player holding left
-		if (37 in keysDown && user1.x>0&&user1.health>0) { 
-				
+		if (37 in keysDown && user1.x>0&&user1.health>0&&!(amIinYou(user1,ie))) { 
+				/*
 				if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
 					user1.moveLeft();
 				}
@@ -271,11 +289,12 @@ function animationFrame(){
 					if((user1.y < ie.y - ieHeight + 10)&&(!(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ))){
 						user1.moveLeft();
 					}
-				}	
+				}*/
+				user1.moveLeft();	
 		}
 		//player holding right
-		if (39 in keysDown&& user1.x < canvas.width - userWidth&&user1.health>0) { 
-			if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
+		if (39 in keysDown&& user1.x < canvas.width - userWidth&&user1.health>0&&!(amIinYou(user1,ie))) { 
+			/*if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
 					user1.moveRight();
 				}
 				else{
@@ -283,7 +302,8 @@ function animationFrame(){
 					if((user1.y < ie.y - ieHeight + 10)&&(!(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ))){
 						user1.moveRight();
 					}
-				}	
+				}	*/
+				user1.moveRight();
 		}
 
 		//player pressing space -- fire
