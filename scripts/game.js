@@ -38,29 +38,6 @@ function User(x,y,speed,hitPower,hitPoints){
 	}
 	//activate jump by default
 	this.canIJump = true;
-	this.jump = function(){
-		//jump is activated so you can't jump again
-		//console.log(this.y)
-		this.canIJump = false;
-		//save this to another varaible so that you can use it in the timeout
-		var _this = this;
-		//go up
-		for(var i = 0; i < 25 ; i++){
-				setTimeout(function(){
-				_this.y -= 5;
-			},i*20);
-		}
-		//go down
-		for(var i = 0; i < 25 ; i++){
-				setTimeout(function(){
-				_this.y += 5;
-			},(i+25)*20);
-		}
-		//after the jump you can jump again
-		setTimeout(function(){
-			_this.canIJump = true;
-		},1000);
-   }
    this.shootTipe = 1;
 
 
@@ -69,7 +46,7 @@ function User(x,y,speed,hitPower,hitPoints){
 
    this.isShotFired = false;
    
-   		this.shot= new Shot(this.x,this.y,this.speed*2.2,25);
+   		this.shot= new Shot(this.x,this.y,this.speed*2.2,25,54,18);
    this.shoot = function(){
 
 		this.shot.x=this.x
@@ -78,10 +55,8 @@ function User(x,y,speed,hitPower,hitPoints){
    		this.isShotFired =  true;
    		
    }
-
-
 }
-function Shot(x,y,speed,firepower) {
+function Shot(x,y,speed,firepower,width,height) {
 		this.x = x
 		this.firepower = firepower;
 		this.y = y
@@ -94,7 +69,9 @@ function Shot(x,y,speed,firepower) {
 		this.moveLeft = function(){
 			this.x-= this.speed;
 		}
-	}
+		this.width = width;
+		this.height = height;
+}
 function InternetExporer(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
 	this.x = x;
@@ -135,18 +112,24 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
    }
    }
 
-   var amIinYou = function(me,you){
-   		if(me.y+me.height < you.y || me.y>=you.y+you.height){
-   			return false;
-   		}
-   		if(me.x+me.width>=you.x && me.x <= you.width + you.x){
-   			return true;
-   		}
-   		return false;
+var amIinYou = function(me,you){
+	if(me.y+me.height <= you.y || me.y >=you.y+you.height){
+		return false;
+	}
+	if(me.x+me.width<you.x -2   || me.x > you.width + you.x -25 ){
+		return false;
+	}
+	return true;
 
-   }
-
-
+}
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}   
 var keysDown = {};
 
 addEventListener("keydown", function (e) {
@@ -157,25 +140,17 @@ addEventListener("keyup", function (e) {
 	delete keysDown[e.keyCode];
 }, false);
 
-var user1 = new User(0,ctx.canvas.height - userHeight,5,10,100);
-//create shot
-//var shot = new Shot(0,ctx.canvas.height - userHeight,5,false);
+var user1 = new User(0,ctx.canvas.height - 70,5,10,100);
 //create ie
-var ie  = new InternetExporer(ctx.canvas.width -3*ieWidth,ctx.canvas.height - ieHeight,5,10,100)
+var ie  = new InternetExporer(ctx.canvas.width -70,ctx.canvas.height -70	,5,10,100)
 var ieMaxHealth = ie.health
-function sleep(milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
+
 
 
 function animationFrame(){
 			canvas.width = canvas.width;
-			
+		console.log("User1 --> X: " + user1.x + " Y: " + user1.y);
+		console.log("Ie --> X: " + ie.x + " Y: " + ie.y);
 		ctx.fillStyle = "black";
 		ctx.font = "24px Helvetica";
 		ctx.textAlign = "left";
@@ -273,7 +248,7 @@ function animationFrame(){
 			user1.y-=user1.speed;
 		}
 		else{
-			if(user1.y > baseLine){
+			if(user1.y >= baseLine){
 				user1.canIJump = true;
 			}
 			else{
@@ -320,7 +295,7 @@ function animationFrame(){
 					}
 
 		}
-		if(user1.isShotFired){	
+		if(user1.isShotFired){	/*
 			if(user1.shot.x < ie.x || user1.shot.x > ie.x + userWidth)			{	
 				ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
 				user1.shot.moveRight();
@@ -337,7 +312,20 @@ function animationFrame(){
 					user1.shot.x = user1.x;
 					user1.shot.y = user1.y+20;
 				}
+			}*/
+			console.log(!amIinYou(user1.shot,ie))
+			if(!amIinYou(user1.shot,ie)){
+
+				ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
+				user1.shot.moveRight();
 			}
+			else{
+					ie.health -= user1.shot.firepower;
+					user1.canIshoot =true;
+					user1.isShotFired = false;
+					user1.shot.x = user1.x;
+					user1.shot.y = user1.y+20;
+				}
 			if(user1.shot.x <0 || user1.shot.x > canvas.width|| user1.shot.y <0 || user1.shot.y> canvas.height){
 					user1.canIshoot =true;
 					user1.isShotFired = false;
