@@ -376,7 +376,7 @@ function animationFrameMenu(){
 		if(brainX%20 == 0){
 		frame++;
 		}
-		brainX+=2;
+		brainX+=4;
 		if(frame == 7){
 			frame = 3;
 		}
@@ -389,13 +389,14 @@ function animationFrameMenu(){
 		if(brainX%20 == 0){
 		frame--;
 		}
-		brainX-=2;
+		brainX-=4;
 		if(frame == -1){
 			frame = 2;
 		}
 		if(brainX == 0){
 			brainMode = 0;
-			brainY = canvas.height;
+			brainY = canvas.height-50;
+			frame = 3;
 		}
 	}
 	
