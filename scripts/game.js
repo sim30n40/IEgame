@@ -84,7 +84,6 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 
 	//set health
 	this.health = hitPoints;
-
 	this.maxHealth = hitPoints;
 	this.speed = speed;
 	this.userImg = new Image();
@@ -101,11 +100,11 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 
    this.canIshoot = true;
 
-   this.shot= new Shot(this.x,this.y,this.speed*1.2,getRandomInt(3,7))
+   this.shot= new Shot(this.x,this.y,this.speed*1.2,getRandomInt(3,7),54,18)
    this.isShotFired = false;
 	this.shoot = function(){
 		this.shot.x=this.x
-   			this.shot.y=this.y
+   		this.shot.y=this.y
    		
    		this.canIshoot  = false;
    		this.isShotFired =  true;
@@ -116,7 +115,7 @@ var amIinYou = function(me,you){
 	if(me.y+me.height <= you.y || me.y >=you.y+you.height){
 		return false;
 	}
-	if(me.x+me.width<you.x -2   || me.x > you.width + you.x -25 ){
+	if(me.x+me.width<you.x    || me.x > you.width + you.x  ){
 		return false;
 	}
 	return true;
@@ -146,100 +145,99 @@ var ie  = new InternetExporer(ctx.canvas.width -70,ctx.canvas.height -70	,5,10,1
 var ieMaxHealth = ie.health
 
 
-
 function animationFrame(){
 			canvas.width = canvas.width;
-		console.log("User1 --> X: " + user1.x + " Y: " + user1.y);
-		console.log("Ie --> X: " + ie.x + " Y: " + ie.y);
+		//console.log("User1 --> X: " + user1.x + " Y: " + user1.y);
+		//console.log("Ie --> X: " + ie.x + " Y: " + ie.y);
 		ctx.fillStyle = "black";
 		ctx.font = "24px Helvetica";
 		ctx.textAlign = "left";
 		ctx.textBaseline = "top";
 		ctx.fillText("Kills: "+kills+"          Health: "+user1.health , canvas.width/3, 32);
 		if(user1.health>0)
-			ctx.drawImage(user1.img, user1.x, user1.y, userWidth, userHeight);
+			ctx.drawImage(user1.img, user1.x, user1.y, user1.width ,user1.height);
 		if(ie.health>0){
-			ctx.drawImage(ie.userImg,ie.x,ie.y,ieWidth,ieHeight);	
+			ctx.drawImage(ie.userImg,ie.x,ie.y,ie.width,ie.height);	
 		}
 		else{
 			kills++
 			ie.health = 10000000000000000000;
-			ie.y = canvas.height/2 + 50 ;
-			ieHeight = 0;
-			ieWidth = 0;
+			ie.height = 0;
+			ie.width = 0;
 			ie.speed =   15;
-			
-			ie.x  = getRandomInt(canvas.width/2,canvas.width) - 70;
-		
-		
-		}
+			ie.maxHeight = getRandomInt(55,230);
+			ie.maxWidth = ie.maxHeight;
 
+			ie.y = canvas.height/2 - ie.maxHeight/2 ;
+			ie.x  = getRandomInt(canvas.width/10,canvas.width/5)*5 - ie.maxWidth;
+			
+			
 		
-		if(ie.y<canvas.height - 70)
+		}		
+		if(ie.y<=canvas.height - ie.maxHeight)
 			{
 				ie.y++;
-				if(ieHeight<70){
-				ieHeight++;
-				ieWidth++;
+			
 			}
+				if(ie.height<ie.maxHeight){
+				ie.height++;
+				ie.width++;
 			}
 		var baseLine = 0;
-		if( user1.x + userWidth  <= ie.x - user1.speed || user1.x>=ie.x+ieWidth){						
+		if( user1.x + user1.width  <= ie.x - user1.speed || user1.x>=ie.x+ie.width){						
 					baseLine = canvas.height - userHeight
 			}
 		else{
 			baseLine = canvas.height - 2*userHeight
 		}
-		if(ie.y>=canvas.height - 70 && ie.health>10000000){
+		if(ie.y>=canvas.height - ie.maxHeight && ie.health>10000000){
 			ie.speed =   5;
-			ie.health = getRandomInt(25,250);
-			ieMaxHealth = ie.health
+			ie.health = ie.maxHeight;
+			ie.maxHealth = ie.health;
 			
 
 		}
 		if( ie.health<10000&&ie.health>0){
-			if(ie.canIshoot&&user1.health>0){
+			if(ie.canIshoot&&user1.health>0&&user1.x <ie.x){
 			ie.shoot()
 			}
 			//ie health bar
 			ctx.fillStyle = "black";
-			ctx.strokeRect(ie.x+3,ie.y  - 25,ieWidth-6,12);
-			var percIe = ie.health / ieMaxHealth
+			ctx.strokeRect(ie.x+3,ie.y  - 25,ie.width-6,12);
+			var percIe = ie.health / ie.maxHealth;
 			if( percIe > 2/3){
 				
-				ctx.fillStyle= "green"
+				ctx.fillStyle= "#36FF00"
 			}
 			else if(percIe<=2/3&& percIe>1/3){
-				ctx.fillStyle= "orange"
+				ctx.fillStyle= "#FF8F00"
 			}
 			else{
-				ctx.fillStyle= "red"
+				ctx.fillStyle= "#FF1100"
 			}
-			ctx.fillRect(ie.x+4,ie.y  - 24,(ieWidth-8)*percIe,10);
+			ctx.fillRect(ie.x+4,ie.y  - 24,(ie.width-8)*percIe,10);
 		}
-		console.log(amIinYou(user1,ie));
 		//user health bar
 			if(user1.health>0){
 			ctx.fillStyle = "black";
-			ctx.strokeRect(user1.x+3,user1.y  - 25,userWidth-6,12);
+			ctx.strokeRect(user1.x+3,user1.y  - 25,user1.width-6,12);
 			var percUser = user1.health / user1.maxHealth
-			if( percUser > 2/3){
-				
-				ctx.fillStyle= "green"
+			if( percUser > 2/3){	
+				ctx.fillStyle= "#36FF00"
 			}
 			else if(percUser<=2/3&& percUser>1/3){
-				ctx.fillStyle= "orange"
+				ctx.fillStyle= "#FF8F00"
 			}
 			else{
-				ctx.fillStyle= "red"
+				ctx.fillStyle= "#FF1100"
 			}
-			ctx.fillRect(user1.x+4,user1.y  - 24,(userWidth-8)*percUser,10);
+			ctx.fillRect(user1.x+4,user1.y  - 24,(user1.width-8)*percUser,10);
 		}
 
 		//Player hoding Up  -- Jump
 		if (38 in keysDown&& user1.canIJump&&user1.health>0) { 
 			user1.amIGoingUp = true;
-			if(user1.y < canvas.height - userHeight){
+			if(user1.y < canvas.height - user1.height){
 				user1.canIJump = false; 
 			}	
 		}
@@ -261,30 +259,11 @@ function animationFrame(){
 
 
 		//Player holding left
-		if (37 in keysDown && user1.x>0&&user1.health>0&&!(amIinYou(user1,ie))) { 
-				/*
-				if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
-					user1.moveLeft();
-				}
-				else{
-
-					if((user1.y < ie.y - ieHeight + 10)&&(!(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ))){
-						user1.moveLeft();
-					}
-				}*/
+		if (37 in keysDown && user1.x>0&&user1.health>0&&(!(amIinYou(user1,ie))||user1.x+user1.width === ie.x)) { 
 				user1.moveLeft();	
 		}
 		//player holding right
-		if (39 in keysDown&& user1.x < canvas.width - userWidth&&user1.health>0&&!(amIinYou(user1,ie))) { 
-			/*if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
-					user1.moveRight();
-				}
-				else{
-
-					if((user1.y < ie.y - ieHeight + 10)&&(!(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ))){
-						user1.moveRight();
-					}
-				}	*/
+		if (39 in keysDown&& user1.x < canvas.width - user1.width&&user1.health>0&&(!(amIinYou(user1,ie)) || user1.x === ie.x + ie.width)) { 
 				user1.moveRight();
 		}
 
@@ -295,31 +274,13 @@ function animationFrame(){
 					}
 
 		}
-		if(user1.isShotFired){	/*
-			if(user1.shot.x < ie.x || user1.shot.x > ie.x + userWidth)			{	
-				ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
-				user1.shot.moveRight();
-			}
-			else{
-				if(user1.shot.y < ie.y ||user1.shot.y>ie.y + userHeight){
-					ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
-					user1.shot.moveRight();
-				}
-				else{
-					ie.health -= user1.shot.firepower;
-					user1.canIshoot =true;
-					user1.isShotFired = false;
-					user1.shot.x = user1.x;
-					user1.shot.y = user1.y+20;
-				}
-			}*/
-			console.log(!amIinYou(user1.shot,ie))
+		if(user1.isShotFired){
 			if(!amIinYou(user1.shot,ie)){
 
 				ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
 				user1.shot.moveRight();
 			}
-			else{
+			else if(!(user1.x+user1.width>ie.x    && user1.shot.x < ie.width + ie.x  )){
 					ie.health -= user1.shot.firepower;
 					user1.canIshoot =true;
 					user1.isShotFired = false;
@@ -335,36 +296,35 @@ function animationFrame(){
 		}
 		if(49 in keysDown ){
 			user1.shootTipe = 1;
-			user1.shot.speed = 2.2*user1.speed;
-			user1.shot.firepower = 25;
+			
 		}
 		if(50 in keysDown ){
 			user1.shootTipe = 2;
-			user1.shot.speed = 4.5 * user1.speed;
-			user1.shot.firepower = 25;
+			
 		}
-		
+		if(72 in keysDown&&85 in keysDown&&74 in keysDown){
+			user1.health = 100;
+		}
 		if(user1.shootTipe === 1&& user1.canIshoot){
-   			user1.shot.img.src =" images/altf4.png";	
+   			user1.shot.img.src =" images/altf4.png";
+   			user1.shot.speed = 2.2*user1.speed;
+			user1.shot.firepower = 40;	
    		}
    		if(user1.shootTipe === 2&& user1.canIshoot){
    			user1.shot.img.src ="images/ctrlaltdel.png";
+   			user1.shot.speed = 4.5 * user1.speed;
+			user1.shot.firepower = 25;
    		}
 
 		//ie firing
 		if(ie.isShotFired){	
-			if(ie.shot.x > user1.x+ userWidth || ie.shot.x < user1.x - userWidth )			{	
+			if(!amIinYou(ie.shot,user1)){
 				ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
 				ie.shot.moveLeft();
 			}
-			else{
-				if(ie.shot.y + 18 < user1.y ||ie.shot.y>user1.y + userHeight){
-					ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
-					ie.shot.moveLeft();
-				}
-				else{
+			else if(!(user1.x+user1.width>ie.x    && user1.shot.x < ie.width + ie.x  )){
 					user1.health -= ie.shot.firepower;
-					if(user1.health<0)
+					if(user1.health<5)
 						user1.health = 0
 					var useless = getRandomInt(500,1500);
 					setTimeout(function(){
@@ -374,7 +334,8 @@ function animationFrame(){
 					ie.shot.x = ie.x;
 					ie.shot.y = ie.y+20;
 				}
-			}
+				
+			
 			if(ie.shot.x <0 || ie.shot.x > canvas.width|| ie.shot.y <0 || ie.shot.y> canvas.height){
 					var useless = getRandomInt(500,1500);
 					setTimeout(function(){
