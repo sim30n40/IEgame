@@ -1,8 +1,20 @@
 (function() {
 //select the canvas
 
+function getMousePos(canvas, evt) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+		x: evt.clientX - rect.left,
+		y: evt.clientY - rect.top
+	};
+}
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
+var mousePos = 0;
+canvas.addEventListener('mousemove', function(evt) {
+	 mousePos = getMousePos(canvas, evt);
+	console.log( 'Mouse position: ' + mousePos.x + ',' + mousePos.y);
+}, false);
 //some function that we will probably need :D
 function getRandomInt (min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -326,7 +338,7 @@ function backgroundChanger(){
 }
 
 var userLevel0 = new User(0,ctx.canvas.height - 70,5,10,100);
-	//create ie
+var shit =false	//create ie
 var ieLevel0  = new InternetExporer(ctx.canvas.width -150,ctx.canvas.height -150	,5,10,1000)
 ieLevel0.img.src = "images/ie11.png"
 ieLevel0.width = 50;
@@ -363,15 +375,19 @@ var levels = {
 	var brainImg = new Image();
 	brainImg.src = "images/brain.png";
 	var frame = 3;
-
+	var playButonImg = new Image ();
+	playButonImg.src = "images/play.png";
 	var brainX = 0;
 	var brainY = canvas.height - 50;
 	var brainMode = 0;
 function animationFrameMenu(){
 	$("#canvas").css("background-image","none");
+	$("#canvas").css("background-color","#8F00FF");
 	
 	canvas.width = canvas.width;
-	ctx.drawImage(brainImg,frame*50,0,50,50, brainX,brainY,50,50);
+	ctx.drawImage(brainImg,frame*50,0,50,50, brainX,brainY,50,50)
+	ctx.drawImage(playButonImg,280,120,250,250);
+
 	if(brainMode == 0){
 		if(brainX%20 == 0){
 		frame++;
@@ -394,13 +410,53 @@ function animationFrameMenu(){
 			frame = 2;
 		}
 		if(brainX == 0){
+			brainMode = 2;
+			brainY = canvas.height;
+			brainX = canvas.width - 50;
+			frame = 3;
+		}
+	}
+	if(brainMode == 2){
+		if(brainY%20 == 0){
+		frame++;
+		}
+		brainY-=4;
+		if(frame == 7){
+			frame = 3;
+		}
+		if(brainY == 0){
+			brainMode = 3;
+			brainY = 0;
+			brainX = 0;
+		}
+	}
+	if(brainMode == 3){
+		if(brainY%20 == 0){
+		frame--;
+		}
+		brainY+=4;
+		if(frame == -1){
+			frame = 2;
+		}
+		if(brainY == canvas.height){
 			brainMode = 0;
 			brainY = canvas.height-50;
 			frame = 3;
 		}
 	}
+	if(    (mousePos.x - 405)*(mousePos.x - 405) + (mousePos.y - 245)*(mousePos.y - 245)  < 125*125 ){
 	
+		$("canvas").click(function(){
+			shit = true;
+		});
+
+	}
+	if(shit){
+		requestAnimationFrame(animationFrameIntroLevel0)
+	}
+	else{
 	requestAnimationFrame(animationFrameMenu);
+	}
 }
 function animationFrameIntroLevel0(){
 	backgroundChanger();
