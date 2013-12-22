@@ -1,5 +1,6 @@
 (function() {
 //select the canvas
+
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 //some function that we will probably need :D
@@ -7,11 +8,11 @@ function getRandomInt (min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 //user width and height saved in vars (it isn't obvious :D)
-var userWidth = 70;
-var userHeight = 70;
-var ieWidth = 70;
-var ieHeight = 70;
+var bg = new Image();
+bg.src = "images/wf.gif";
 var kills = 0;
+var portal = new Image();
+portal.src = 'images/portal.gif';
 //create object for the user
 function User(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed\
@@ -21,20 +22,30 @@ function User(x,y,speed,hitPower,hitPoints){
 	this.width = 70;
 	this.x = x;
 	this.y = y;
+	this.healthBar = new Image();
+	this.healthBar.src = 'images/neuron.png'
 	this.speed = speed;
 	//set health
 	this.health = hitPoints;
 	this.maxHealth = hitPoints;
 	//creating image for the user
 	this.img = new Image();
-	this.img.src = "images/user.png";
+	this.img.src = "images/userRight.png";
 	this.amIGoingUp = false;
+
+		this.moveLeft = false;
+		this.movingRight = true;
 	//controll brains
 	this.moveRight = function(){
 		this.x+= this.speed;
+		
+		this.movingLeft = false;
+		this.movingRight = true;
 	}
 	this.moveLeft = function(){
 		this.x-= this.speed;
+		this.movingLeft  = true;
+		this.movingRight = false;
 	}
 	//activate jump by default
 	this.canIJump = true;
@@ -46,10 +57,10 @@ function User(x,y,speed,hitPower,hitPoints){
 
    this.isShotFired = false;
    
-   		this.shot= new Shot(this.x,this.y,this.speed*2.2,25,54,18);
+   this.shot= new Shot(this.x,this.y,this.speed*2.2,25,54,18);
    this.shoot = function(){
 
-		this.shot.x=this.x
+		this.shot.x=this.x + this.width
    			this.shot.y=this.y
    		   		this.canIshoot  = false;
    		this.isShotFired =  true;
@@ -86,8 +97,8 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 	this.health = hitPoints;
 	this.maxHealth = hitPoints;
 	this.speed = speed;
-	this.userImg = new Image();
-	this.userImg.src = "images/ie6.png";
+	this.img = new Image();
+	this.img.src = "images/ie6.png";
 	this.moveRight = function(){
 		this.x+= this.speed;
 	}
@@ -103,14 +114,19 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
    this.shot= new Shot(this.x,this.y,this.speed*1.2,getRandomInt(3,7),54,18)
    this.isShotFired = false;
 	this.shoot = function(){
-		this.shot.x=this.x
-   		this.shot.y=this.y
    		
    		this.canIshoot  = false;
    		this.isShotFired =  true;
    }
    }
-
+function lock(shooter,target){
+	if(target.y >= shooter.y){
+		shooter.shot.y = target.y +10;
+	}
+	else{
+		shooter.shoot.y = canvas.height - Math.floor(shooter.y/2);
+	}
+}
 var amIinYou = function(me,you){
 	if(me.y+me.height <= you.y || me.y >=you.y+you.height){
 		return false;
@@ -139,103 +155,20 @@ addEventListener("keyup", function (e) {
 	delete keysDown[e.keyCode];
 }, false);
 
-var user1 = new User(0,ctx.canvas.height - 70,5,10,100);
-//create ie
-var ie  = new InternetExporer(ctx.canvas.width -70,ctx.canvas.height -70	,5,10,100)
-var ieMaxHealth = ie.health
 
 
-function animationFrame(){
-			canvas.width = canvas.width;
-		//console.log("User1 --> X: " + user1.x + " Y: " + user1.y);
-		//console.log("Ie --> X: " + ie.x + " Y: " + ie.y);
-		ctx.fillStyle = "black";
-		ctx.font = "24px Helvetica";
-		ctx.textAlign = "left";
-		ctx.textBaseline = "top";
-		ctx.fillText("Kills: "+kills+"          Health: "+user1.health , canvas.width/3, 32);
-		if(user1.health>0)
-			ctx.drawImage(user1.img, user1.x, user1.y, user1.width ,user1.height);
-		if(ie.health>0){
-			ctx.drawImage(ie.userImg,ie.x,ie.y,ie.width,ie.height);	
-		}
-		else{
-			kills++
-			ie.health = 10000000000000000000;
-			ie.height = 0;
-			ie.width = 0;
-			ie.speed =   15;
-			ie.maxHeight = getRandomInt(55,230);
-			ie.maxWidth = ie.maxHeight;
-
-			ie.y = canvas.height/2 - ie.maxHeight/2 ;
-			ie.x  = getRandomInt(canvas.width/10,canvas.width/5)*5 - ie.maxWidth;
-			
-			
-		
-		}		
-		if(ie.y<=canvas.height - ie.maxHeight)
-			{
-				ie.y++;
-			
-			}
-				if(ie.height<ie.maxHeight){
-				ie.height++;
-				ie.width++;
-			}
-		var baseLine = 0;
+function baseLiner(user1,ie){
+	
 		if( user1.x + user1.width  <= ie.x - user1.speed || user1.x>=ie.x+ie.width){						
-					baseLine = canvas.height - userHeight
+					return canvas.height - user1.height
 			}
 		else{
-			baseLine = canvas.height - 2*userHeight
+			return canvas.height - user1.height -ie.height;
 		}
-		if(ie.y>=canvas.height - ie.maxHeight && ie.health>10000000){
-			ie.speed =   5;
-			ie.health = ie.maxHeight;
-			ie.maxHealth = ie.health;
-			
+}
+function userBrains(baseLine,user1,ie){
 
-		}
-		if( ie.health<10000&&ie.health>0){
-			if(ie.canIshoot&&user1.health>0&&user1.x <ie.x){
-			ie.shoot()
-			}
-			//ie health bar
-			ctx.fillStyle = "black";
-			ctx.strokeRect(ie.x+3,ie.y  - 25,ie.width-6,12);
-			var percIe = ie.health / ie.maxHealth;
-			if( percIe > 2/3){
-				
-				ctx.fillStyle= "#36FF00"
-			}
-			else if(percIe<=2/3&& percIe>1/3){
-				ctx.fillStyle= "#FF8F00"
-			}
-			else{
-				ctx.fillStyle= "#FF1100"
-			}
-			ctx.fillRect(ie.x+4,ie.y  - 24,(ie.width-8)*percIe,10);
-		}
-		//user health bar
-			if(user1.health>0){
-			ctx.fillStyle = "black";
-			ctx.strokeRect(user1.x+3,user1.y  - 25,user1.width-6,12);
-			var percUser = user1.health / user1.maxHealth
-			if( percUser > 2/3){	
-				ctx.fillStyle= "#36FF00"
-			}
-			else if(percUser<=2/3&& percUser>1/3){
-				ctx.fillStyle= "#FF8F00"
-			}
-			else{
-				ctx.fillStyle= "#FF1100"
-			}
-			ctx.fillRect(user1.x+4,user1.y  - 24,(user1.width-8)*percUser,10);
-		}
-
-		//Player hoding Up  -- Jump
-		if (38 in keysDown&& user1.canIJump&&user1.health>0) { 
+	if (38 in keysDown&& user1.canIJump&&user1.health>0) { 
 			user1.amIGoingUp = true;
 			if(user1.y < canvas.height - user1.height){
 				user1.canIJump = false; 
@@ -259,11 +192,13 @@ function animationFrame(){
 
 
 		//Player holding left
-		if (37 in keysDown && user1.x>0&&user1.health>0&&(!(amIinYou(user1,ie))||user1.x+user1.width === ie.x)) { 
+		if (37 in keysDown && user1.x>=0&&user1.health>0&&(!(amIinYou(user1,ie))||user1.x+user1.width === ie.x)) {
+				//1user1.img.src = "images/userLeft.png"; 
 				user1.moveLeft();	
 		}
 		//player holding right
 		if (39 in keysDown&& user1.x < canvas.width - user1.width&&user1.health>0&&(!(amIinYou(user1,ie)) || user1.x === ie.x + ie.width)) { 
+				//
 				user1.moveRight();
 		}
 
@@ -315,9 +250,34 @@ function animationFrame(){
    			user1.shot.speed = 4.5 * user1.speed;
 			user1.shot.firepower = 25;
    		}
-
-		//ie firing
-		if(ie.isShotFired){	
+   		if(user1.health>0){
+			var percUser = user1.health / user1.maxHealth
+			ctx.drawImage(bg,0,0,276,119);
+			ctx.drawImage(user1.healthBar,0,0,276*percUser,119,0,0,276*percUser,119);
+			}
+}
+function ieHealthBar(ie){
+	if( ie.health<10000&&ie.health>0){
+			
+			//ie health bar
+			ctx.fillStyle = "black";
+			ctx.strokeRect(ie.x+3,ie.y  - 25,ie.width-6,12);
+			var percIe = ie.health / ie.maxHealth;
+			if( percIe > 2/3){
+				
+				ctx.fillStyle= "#36FF00"
+			}
+			else if(percIe<=2/3&& percIe>1/3){
+				ctx.fillStyle= "#FF8F00"
+			}
+			else{
+				ctx.fillStyle= "#FF1100"
+			}
+			ctx.fillRect(ie.x+4,ie.y  - 24,(ie.width-8)*percIe,10);
+		}
+}
+function ieBrains(user1,ie){
+	if(ie.isShotFired){	
 			if(!amIinYou(ie.shot,user1)){
 				ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
 				ie.shot.moveLeft();
@@ -346,11 +306,166 @@ function animationFrame(){
 					ie.shot.y = ie.y+50;
 			}
 		}
-		
-		//Loop it baby
-		requestAnimationFrame(animationFrame);	 	
+		if(ie.canIshoot&&user1.health>0&&user1.x <ie.x&&ie.health>0){
+			lock(ie,user1);
+			ie.shoot();
+			
+		}
 }
-//start animation
-animationFrame();
+function backgroundChanger(){
+	if(currentLevel == 0 && !(levels.zero) ){
+		$("#canvas").css("background-image","url('images/backgroundLevel0.png')");
+		;
+		levels.zero = true;
+	}
+	if(currentLevel == 1 &&!(levels.one) ){
+		console.log("shit");
+		levels.one = true;
+	}
+	$("#canvas").css("background-size",canvas.width + "px " + canvas.height + "px")
+}
+
+var userLevel0 = new User(0,ctx.canvas.height - 70,5,10,100);
+	//create ie
+var ieLevel0  = new InternetExporer(ctx.canvas.width -150,ctx.canvas.height -150	,5,10,1000)
+ieLevel0.img.src = "images/ie11.png"
+ieLevel0.width = 50;
+ieLevel0.height = 50;
+ieLevel0.maxWidth = 150;
+ieLevel0.maxHeight = 150; 
+var currentLevel = 0;
+var levels = {
+	zero:false,
+	one:false,
+	two:false,
+	three:false,
+	four:false,
+	five:false
+}
+	/*
+	var X=0;
+	var Y=0;
+	console.log("X: "+X+" Y: " + Y);
+	if(37 in keysDown){
+		X--;
+	}
+	if(39 in keysDown){
+		X++;
+	}
+	if(40 in keysDown){
+		Y++;
+	}
+	if(38 in keysDown){
+		Y--;
+	}*/
+	ieLevel0.x = 635;
+	ieLevel0.y = 207;
+function animationFrameIntroLevel0(){
+	backgroundChanger();
+	var now  = new Date ; 
+	canvas.width = canvas.width;
+	var delta =now - than
+	ctx.drawImage(userLevel0.img, userLevel0.x, userLevel0.y, userLevel0.width ,userLevel0.height);
+	ctx.fillStyle = "white";
+	ctx.fillRect(624,196,70,75);
+	
+	ctx.drawImage(ieLevel0.img,ieLevel0.x,ieLevel0.y,ieLevel0.width,ieLevel0.height);
+	if( delta< 250){
+		ieLevel0.x++;
+		ieLevel0.height++;
+	}
+	if(delta < 750&&delta >250){
+		ieLevel0.x--;
+
+		ieLevel0.height--;
+	}
+
+	if(delta < 1000&&delta >750){
+		ieLevel0.x++;
+
+		ieLevel0.height++;
+	}
+	if(delta < 1250&&delta >1000){
+		ieLevel0.y--;
+
+		ieLevel0.width--;
+	}
+	if(delta < 1750&&delta >1250){
+		ieLevel0.y++;
+		ieLevel0.width++;
+	}
+	if(delta < 2000&&delta >1750){
+		ieLevel0.y--
+
+		ieLevel0.width--;
+	}
+
+	if(ieLevel0.width<=ieLevel0.maxWidth){
+		ieLevel0.width++
+	}
+	if(ieLevel0.height<=ieLevel0.maxHeight){
+		ieLevel0.height++
+	}
+	if(ieLevel0.x <= canvas.width -150 ){
+		ieLevel0.x++;
+	}
+
+	if(ieLevel0.y <= canvas.height -150){
+		ieLevel0.y++;
+	}
+	if(ieLevel0.y >= canvas.height -150&&ieLevel0.x >=canvas.width -150){
+		ieLevel0.x =ctx.canvas.width -150;
+		ieLevel0.y= ctx.canvas.height -150;
+		requestAnimationFrame(animationFrameLevel0);
+	}
+	else{
+	requestAnimationFrame(animationFrameIntroLevel0);
+	}
+
+}
+function animationFrameLevel0(){
+
+	
+	canvas.width = canvas.width;
+	var baseLine = baseLiner(userLevel0,ieLevel0);
+	userBrains(baseLine,userLevel0,ieLevel0);
+	ieBrains(userLevel0,ieLevel0);
+	ieHealthBar(ieLevel0);		
+	if(userLevel0.health>0)
+		ctx.drawImage(userLevel0.img, userLevel0.x, userLevel0.y, userLevel0.width ,userLevel0.height);
+	if(ieLevel0.health>0){
+		ctx.drawImage(ieLevel0.img,ieLevel0.x,ieLevel0.y,ieLevel0.width,ieLevel0.height);
+		
+	}
+	else{
+		ieLevel0.x = -1000;
+		ieLevel0.y = -1000;
+		ctx.drawImage(portal,canvas.width -150,canvas.height -150,150,150);
+		
+	}
+	if(userLevel0.movingRight){
+		userLevel0.img.src = "images/userRight.png";
+	}
+
+	if(userLevel0.movingLeft){
+		userLevel0.img.src = "images/userLeft.png";
+	}
+	if(userLevel0.x>canvas.width  - 150  &&ieLevel0.health<=0){
+			alert("shit")
+			requestAnimationFrame(animationFrameLevel1)
+		}
+	else{
+		requestAnimationFrame(animationFrameLevel0);
+	 }
+}
+function animationFrameLevel1(){
+	canvas.width = canvas.width
+	$("#canvas").css("background-image","none");
+	ctx.fillStyle = "blue";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText("Level 1", 100, 100);
+}
+var than = new Date();
+animationFrameIntroLevel0();
 
 }())
