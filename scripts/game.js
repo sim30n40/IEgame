@@ -360,6 +360,47 @@ var levels = {
 	}*/
 	ieLevel0.x = 635;
 	ieLevel0.y = 207;
+	var brainImg = new Image();
+	brainImg.src = "images/brain.png";
+	var frame = 3;
+
+	var brainX = 0;
+	var brainY = canvas.height - 50;
+	var brainMode = 0;
+function animationFrameMenu(){
+	$("#canvas").css("background-image","none");
+	
+	canvas.width = canvas.width;
+	ctx.drawImage(brainImg,frame*50,0,50,50, brainX,brainY,50,50);
+	if(brainMode == 0){
+		if(brainX%20 == 0){
+		frame++;
+		}
+		brainX+=2;
+		if(frame == 7){
+			frame = 3;
+		}
+		if(brainX == canvas.width){
+			brainMode = 1;
+			brainY = 0;
+		}
+	}
+	if(brainMode == 1){
+		if(brainX%20 == 0){
+		frame--;
+		}
+		brainX-=2;
+		if(frame == -1){
+			frame = 2;
+		}
+		if(brainX == 0){
+			brainMode = 0;
+			brainY = canvas.height;
+		}
+	}
+	
+	requestAnimationFrame(animationFrameMenu);
+}
 function animationFrameIntroLevel0(){
 	backgroundChanger();
 	var now  = new Date ; 
@@ -421,7 +462,6 @@ function animationFrameIntroLevel0(){
 	else{
 	requestAnimationFrame(animationFrameIntroLevel0);
 	}
-
 }
 function animationFrameLevel0(){
 
@@ -466,6 +506,6 @@ function animationFrameLevel1(){
   ctx.fillText("Level 1", 100, 100);
 }
 var than = new Date();
-animationFrameIntroLevel0();
+animationFrameMenu();
 
 }())
