@@ -1,6 +1,5 @@
 (function() {
-//select the canvas
-
+//make a function to get mouse position
 function getMousePos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
 	return {
@@ -8,18 +7,20 @@ function getMousePos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 }
+//select the canvas
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
+//add eventlistener for mousemove
 var mousePos = 0;
 canvas.addEventListener('mousemove', function(evt) {
-	 mousePos = getMousePos(canvas, evt);
-	console.log( 'Mouse position: ' + mousePos.x + ',' + mousePos.y);
+	mousePos = getMousePos(canvas, evt);
+	//console.log( 'Mouse position: ' + mousePos.x + ',' + mousePos.y);
 }, false);
 //some function that we will probably need :D
 function getRandomInt (min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-//user width and height saved in vars (it isn't obvious :D)
+//some var that wi will need
 var bg = new Image();
 bg.src = "images/wf.gif";
 var kills = 0;
@@ -27,90 +28,96 @@ var portal = new Image();
 portal.src = 'images/portal.gif';
 //create object for the user
 function User(x,y,speed,hitPower,hitPoints){
-	//set object properties for x,y coordinate and speed\
+	//set hight and width
 	this.maxHeight = 70;
 	this.maxWidth = 70;
 	this.height = 70;
 	this.width = 70;
+	//set object properties for x,y coordinate and speed
 	this.x = x;
 	this.y = y;
+	this.speed = speed;
+	//image for the health bar
 	this.healthBar = new Image();
 	this.healthBar.src = 'images/neuron.png'
-	this.speed = speed;
-	//set health
+	//set health and max max health
 	this.health = hitPoints;
 	this.maxHealth = hitPoints;
 	//creating image for the user
 	this.img = new Image();
 	this.img.src = "images/userRight.png";
+	//movement properties
 	this.amIGoingUp = false;
-
-		this.moveLeft = false;
-		this.movingRight = true;
+	this.moveLeft = false;
+	this.movingRight = true;
 	//controll brains
 	this.moveRight = function(){
-		this.x+= this.speed;
-		
+		this.x += this.speed;
 		this.movingLeft = false;
 		this.movingRight = true;
 	}
 	this.moveLeft = function(){
-		this.x-= this.speed;
+		this.x -= this.speed;
 		this.movingLeft  = true;
 		this.movingRight = false;
 	}
 	//activate jump by default
 	this.canIJump = true;
-   this.shootTipe = 1;
-
-
-   
-   this.canIshoot = true;
-
-   this.isShotFired = false;
-   
-   this.shot= new Shot(this.x,this.y,this.speed*2.2,25,54,18);
-   this.shoot = function(){
-
-		this.shot.x=this.x + this.width
-   			this.shot.y=this.y
-   		   		this.canIshoot  = false;
-   		this.isShotFired =  true;
-   		
-   }
+	//activate shooting by default
+	this.shootType = 1;
+	this.canIshoot = true;
+	this.isShotFired = false;
+	this.shot = new Shot(this.x,this.y,this.speed*2.2,25,54,18,'right');
+	//shooting function
+	this.shoot = function(){
+		this.shot.x = this.x;
+		//set where to start from
+		if(this.shot.direction == 'right'){
+			this.shot.x += this.width;
+		}
+		this.shot.y = this.y;
+		this.canIshoot  = false;
+		this.isShotFired =  true;
+	}
 }
-function Shot(x,y,speed,firepower,width,height) {
-		this.x = x
-		this.firepower = firepower;
-		this.y = y
-		this.speed = speed;
-		this.img = new Image();
-		this.img.src = "images/altf4.png";
-		this.moveRight = function(){
-		this.x+= this.speed;
-		}
-		this.moveLeft = function(){
-			this.x-= this.speed;
-		}
-		this.width = width;
-		this.height = height;
+function Shot(x,y,speed,firepower,width,height,dir) {
+	//set shot properties
+	this.x = x;
+	this.firepower = firepower;
+	this.y = y;
+	this.speed = speed;
+	this.img = new Image();
+	this.img.src = 'images/ieError.png';
+	//SIMO!!! NEW PROPERTY :D
+	this.direction = dir;
+	//movement functons
+	this.moveRight = function(){
+		this.x += this.speed;
+	}
+	this.moveLeft = function(){
+		this.x -= this.speed;
+	}
+	//set width and height
+	this.width = width;
+	this.height = height;
 }
 function InternetExporer(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
 	this.x = x;
 	this.y = y;
+	this.speed = speed;
+	//set width, haight and jump
 	this.maxHeight = 70;
 	this.maxWidth = 70;
 	this.height = 70;
 	this.width = 70;
 	this.canIJump = true;
-
-	//set health
+	//set health and img
 	this.health = hitPoints;
 	this.maxHealth = hitPoints;
-	this.speed = speed;
 	this.img = new Image();
 	this.img.src = "images/ie6.png";
+	//some movement functions
 	this.moveRight = function(){
 		this.x+= this.speed;
 	}
@@ -120,17 +127,15 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 	this.moveDown = function(){
 		this.y += this.speed;
 	}
-
-   this.canIshoot = true;
-
-   this.shot= new Shot(this.x,this.y,this.speed*1.2,getRandomInt(3,7),54,18)
-   this.isShotFired = false;
+	//shooting
+	this.canIshoot = true;
+	this.shot= new Shot(this.x,this.y,this.speed*1.2,getRandomInt(3,7),54,18,'left')
+	this.isShotFired = false;
 	this.shoot = function(){
-   		
-   		this.canIshoot  = false;
-   		this.isShotFired =  true;
-   }
-   }
+		this.canIshoot  = false;
+		this.isShotFired =  true;
+	}
+}
 function lock(shooter,target){
 	if(target.y >= shooter.y){
 		shooter.shot.y = target.y +10;
@@ -166,9 +171,6 @@ addEventListener("keydown", function (e) {
 addEventListener("keyup", function (e) {
 	delete keysDown[e.keyCode];
 }, false);
-
-
-
 function baseLiner(user1,ie){
 	
 		if( user1.x + user1.width  <= ie.x - user1.speed || user1.x>=ie.x+ie.width){						
@@ -216,18 +218,29 @@ function userBrains(baseLine,user1,ie){
 
 		//player pressing space -- fire
 		if (32 in keysDown&&user1.health>0) { 
-				if(user1.canIshoot){
-						user1.shoot();
+			if(user1.canIshoot){
+					if(ie.x + ie.width/2 >= user1.x + user1.width/2){
+						user1.shot.direction = 'right';
 					}
+					else{
+						user1.shot.direction = 'left';
+					}
+					user1.shoot();
+				}
 
 		}
 		if(user1.isShotFired){
 			if(!amIinYou(user1.shot,ie)){
 
 				ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
-				user1.shot.moveRight();
+				if(user1.shot.direction == 'right'){
+					user1.shot.moveRight();
+				}
+				if(user1.shot.direction == 'left'){
+					user1.shot.moveLeft();
+				}
 			}
-			else if(!(user1.x+user1.width>ie.x    && user1.shot.x < ie.width + ie.x  )){
+			else /*if(!(user1.x + user1.width > ie.x && user1.shot.x < ie.width + ie.x))*/{
 					ie.health -= user1.shot.firepower;
 					user1.canIshoot =true;
 					user1.isShotFired = false;
@@ -242,22 +255,22 @@ function userBrains(baseLine,user1,ie){
 			}
 		}
 		if(49 in keysDown ){
-			user1.shootTipe = 1;
+			user1.shootType = 1;
 			
 		}
 		if(50 in keysDown ){
-			user1.shootTipe = 2;
+			user1.shootType = 2;
 			
 		}
 		if(72 in keysDown&&85 in keysDown&&74 in keysDown){
 			user1.health = 100;
 		}
-		if(user1.shootTipe === 1&& user1.canIshoot){
+		if(user1.shootType === 1&& user1.canIshoot){
    			user1.shot.img.src =" images/altf4.png";
    			user1.shot.speed = 2.2*user1.speed;
 			user1.shot.firepower = 40;	
    		}
-   		if(user1.shootTipe === 2&& user1.canIshoot){
+   		if(user1.shootType === 2&& user1.canIshoot){
    			user1.shot.img.src ="images/ctrlaltdel.png";
    			user1.shot.speed = 4.5 * user1.speed;
 			user1.shot.firepower = 25;
@@ -290,39 +303,49 @@ function ieHealthBar(ie){
 }
 function ieBrains(user1,ie){
 	if(ie.isShotFired){	
-			if(!amIinYou(ie.shot,user1)){
-				ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
+		if(!amIinYou(ie.shot,user1)){
+			ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
+			if(ie.shot.direction == 'left'){
 				ie.shot.moveLeft();
 			}
-			else if(!(user1.x+user1.width>ie.x    && user1.shot.x < ie.width + ie.x  )){
-					user1.health -= ie.shot.firepower;
-					if(user1.health<5)
-						user1.health = 0
-					var useless = getRandomInt(500,1500);
-					setTimeout(function(){
-					ie.canIshoot =true;
-				},useless);
-					ie.isShotFired = false;
-					ie.shot.x = ie.x;
-					ie.shot.y = ie.y+20;
-				}
-				
-			
-			if(ie.shot.x <0 || ie.shot.x > canvas.width|| ie.shot.y <0 || ie.shot.y> canvas.height){
-					var useless = getRandomInt(500,1500);
-					setTimeout(function(){
-					ie.canIshoot =true;
-				},useless);
-					ie.isShotFired = false;
-					ie.shot.x = ie.x;
-					ie.shot.y = ie.y+50;
+			else{
+				ie.shot.moveRight();
 			}
 		}
-		if(ie.canIshoot&&user1.health>0&&user1.x <ie.x&&ie.health>0){
-			lock(ie,user1);
-			ie.shoot();
-			
+		else /*if(!(user1.x+user1.width>ie.x    && user1.shot.x < ie.width + ie.x  ))*/{
+			user1.health -= ie.shot.firepower;
+			if(user1.health<5)
+				user1.health = 0;
+			var useless = getRandomInt(500,1500);
+			setTimeout(function(){
+				ie.canIshoot =true;
+			},useless);
+			ie.isShotFired = false;
+			ie.shot.x = ie.x;
+			ie.shot.y = ie.y+20;
 		}
+		if(ie.shot.x <0 || ie.shot.x > canvas.width|| ie.shot.y <0 || ie.shot.y> canvas.height){
+			var useless = getRandomInt(500,1500);
+			setTimeout(function(){
+				ie.canIshoot = true;
+			},useless);
+			ie.isShotFired = false;
+			ie.shot.x = ie.x;
+			ie.shot.y = ie.y+50;
+		}
+	}
+	if(ie.canIshoot && user1.health>0 && ie.health>0){
+		lock(ie,user1);
+		//set direction
+		if(ie.x + ie.width/2 <= user1.x + user1.width/2){
+			ie.shot.direction = 'right';
+			ie.shot.x += ie.width;
+		}
+		else{
+			ie.shot.direction = 'left';
+		}
+		ie.shoot();
+	}
 }
 function backgroundChanger(){
 	if(currentLevel == 0 && !(levels.zero) ){
@@ -370,7 +393,7 @@ var levels = {
 	if(38 in keysDown){
 		Y--;
 	}*/
-	ieLevel0.x = 635;
+	ieLevel0.x = 435;
 	ieLevel0.y = 207;
 	var brainImg = new Image();
 	brainImg.src = "images/brain.png";
@@ -520,9 +543,9 @@ function animationFrameIntroLevel0(){
 	requestAnimationFrame(animationFrameIntroLevel0);
 	}
 }
+userLevel0.shot.img.src = "images/altf4.png";
 function animationFrameLevel0(){
-
-	
+	ieLevel0.x = 400;
 	canvas.width = canvas.width;
 	var baseLine = baseLiner(userLevel0,ieLevel0);
 	userBrains(baseLine,userLevel0,ieLevel0);
