@@ -1,3 +1,27 @@
+function preloadMyImages() 
+{
+    var imageList = [
+        "images/wf.gif",
+        "images/portal.gif",,
+        "images/ieError.png",
+        "images/userRight.png",
+        "images/ie6.png",
+        "images/altf4.png",
+        "images/userLeft.png",
+        "images/brain.png",
+        "images/play.png",
+        "images/ie11.png",
+        'images/backgroundLevel0.png',
+        "images/ctrlaltdel.png"
+
+    ];
+    for(var i = 0; i < imageList.length; i++ ) 
+    {
+        var imageObject = new Image();
+        imageObject.src = imageList[i];
+    }
+    
+}
 (function() {
 //make a function to get mouse position
 function getMousePos(canvas, evt) {
@@ -46,6 +70,8 @@ function User(x,y,speed,hitPower,hitPoints){
 	//creating image for the user
 	this.img = new Image();
 	this.img.src = "images/userRight.png";
+	this.sound = new Audio("audio/laser.wav");
+
 	//movement properties
 	this.amIGoingUp = false;
 	this.moveLeft = false;
@@ -78,6 +104,7 @@ function User(x,y,speed,hitPower,hitPoints){
 		this.shot.y = this.y;
 		this.canIshoot  = false;
 		this.isShotFired =  true;
+		this.sound.play();
 	}
 }
 function Shot(x,y,speed,firepower,width,height,dir) {
@@ -518,7 +545,7 @@ function animationFrameIntroLevel0(){
 }
 userLevel0.shot.img.src = 'images/altf4.png';
 function animationFrameLevel0(){
-	ieLevel0.x = 400;
+	//ieLevel0.x = 400;
 	canvas.width = canvas.width;
 	var baseLine = baseLiner(userLevel0,ieLevel0);
 	userBrains(baseLine,userLevel0,ieLevel0);
@@ -532,7 +559,6 @@ function animationFrameLevel0(){
 	}
 	else{
 		ieLevel0.x = -1000;
-		ieLevel0.y = -1000;
 		ctx.drawImage(portal,canvas.width -150,canvas.height -150,150,150);
 	}
 	if(userLevel0.movingRight){
@@ -542,8 +568,7 @@ function animationFrameLevel0(){
 		userLevel0.img.src = "images/userLeft.png";
 	}
 	if(userLevel0.x > canvas.width - 150 && ieLevel0.health <= 0){
-		alert("shit")
-		requestAnimationFrame(animationFrameLevel1)
+		requestAnimationFrame(animationFrameLevel1);
 	}
 	else{
 		requestAnimationFrame(animationFrameLevel0);
@@ -553,9 +578,11 @@ function animationFrameLevel1(){
 	canvas.width = canvas.width;
 	$("#canvas").css("background-image","none");
 	ctx.fillStyle = "blue";
-	ctx.font = "bold 16px Arial";
+	ctx.font = "bold 160px Arial";
 	ctx.fillText("Level 1", 100, 100);
 }
+var clickSound = new Audio('sound/laser.wav');
+clickSound.play();
 var than = new Date();
 animationFrameMenu();
 }())

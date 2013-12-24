@@ -7,7 +7,15 @@
 		<script type="text/javascript" src="scripts/jquery-1.10.2.min.js"></script>
 	</head>
 	<body>
-		<canvas id = "canvas" width = "800" height = "500"></canvas>
+		<canvas id = "canvas1" width = "800" height = "500" ></canvas>
+		<script  src="scripts/loading.js"></script>
+		<canvas id = "canvas" width = "800" height = "500" onload="preloadMyImages();">
+			<script type="text/javascript">
+				$(document).ready(function(){
+    			$("#canvas1").hide();
+    			});
+			</script>
+		</canvas>
 		<script  src="scripts/game.js"></script>
 	</body>
 </html>
