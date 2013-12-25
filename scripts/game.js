@@ -104,6 +104,7 @@ function User(x,y,speed,hitPower,hitPoints){
 		this.shot.y = this.y;
 		this.canIshoot  = false;
 		this.isShotFired =  true;
+		this.sound.load();
 		this.sound.play();
 	}
 }
